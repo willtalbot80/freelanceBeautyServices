@@ -1,0 +1,152 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Beauty Experts</title>
+    <style>
+      :root {
+        --primary: #8B6F47;
+        --primary-light: #A68B63;
+        --primary-dark: #6B5435;
+        --secondary: #E8DCC8;
+        --accent: #C9A961;
+        --accent-light: #D4B896;
+        --background: #FAF7F2;
+        --surface: #FEFDFB;
+        --text-primary: #3E3B37;
+        --text-secondary: #7A7570;
+        --border: #E5DFD5;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { 
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: var(--background);
+        color: var(--text-primary);
+      }
+      .navbar {
+        background: var(--surface);
+        border-bottom: 2px solid var(--accent);
+        padding: 1rem 2rem;
+        box-shadow: 0 2px 4px rgba(139, 111, 71, 0.08);
+      }
+      .nav-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .nav-brand {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--primary-dark);
+        text-decoration: none;
+      }
+      .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+      h1 { margin-bottom: 2rem; text-align: center; color: var(--primary-dark); }
+      .hero {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: #FEFDFB;
+        padding: 3rem; 
+        text-align: center;
+        border-radius: 12px;
+        margin-bottom: 3rem;
+        box-shadow: 0 4px 15px rgba(139, 111, 71, 0.15);
+      }
+      .hero h1 { color: #FEFDFB; margin: 0; }
+      .hero p { color: rgba(254, 253, 251, 0.95); margin-bottom: 1.5rem; }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+      }
+      .card {
+        background: var(--surface);
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(139, 111, 71, 0.08);
+        transition: all 250ms;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        border: 1px solid var(--border);
+      }
+      .card:hover {
+        box-shadow: 0 12px 24px rgba(139, 111, 71, 0.15);
+        transform: translateY(-4px);
+        border-color: var(--accent);
+      }
+      .card-title {
+        font-size: 1.25rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+        color: var(--primary-dark);
+      }
+      .card-meta {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        margin-bottom: 1rem;
+      }
+      .card-services {
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+        font-size: 0.95rem;
+      }
+      .btn {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, var(--accent), var(--accent-light));
+        color: white;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 150ms;
+        border: none;
+        cursor: pointer;
+      }
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(201, 169, 97, 0.3);
+      }
+      .empty { text-align: center; color: var(--text-secondary); padding: 2rem; }
+      footer { text-align: center; padding: 2rem; color: var(--text-secondary); border-top: 2px solid var(--accent); }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-container">
+        <a href="/" class="nav-brand">✨ Freelance Beauty</a>
+      </div>
+    </nav>
+    
+    <div class="container">
+      <div class="hero">
+        <h1>Find Your Beauty Expert</h1>
+        <p>Discover talented professionals and book your perfect service</p>
+      </div>
+
+      <h2 style="text-align: center; color: var(--text-primary); margin-bottom: 2rem;">Featured Experts</h2>
+      
+      {% if experts %}
+        <div class="grid">
+          {% for e in experts %}
+            <a href="{% url 'expert_detail' e.pk %}" class="card">
+              <div class="card-title">{{ e.user.get_full_name|default:e.user.username }}</div>
+              <div class="card-meta">📍 {{ e.location|default:"Location TBA" }}</div>
+              <div class="card-services">{{ e.services|truncatewords:15 }}</div>
+              <button class="btn">View Profile →</button>
+            </a>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty">No experts available yet. Check back soon!</div>
+      {% endif %}
+    </div>
+
+    <footer>
+      <p>👩‍💄 Connecting clients with talented beauty professionals</p>
+    </footer>
+  </body>
+</html>
