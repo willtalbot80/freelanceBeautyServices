@@ -55,3 +55,34 @@ class ExchangeFirebaseTokenAPIView(APIView):
         data = UserSerializer(user).data
         data['token'] = token.key
         return Response(data, status=status.HTTP_200_OK)
+
+
+class RevokeFirebaseTokensAPIView(APIView):
+    """Admin endpoint to revoke a user's refresh tokens in Firebase.
+
+    POST payload: {"uid": "<firebase uid>"} or {"email": "user@example.com"}
+    Requires admin privileges in Django (`is_staff`).
+    """
+    permission_classes = [permissions.IsAdminUser]
+
+    def post(self, request, *args, **kwargs):
+        uid = request.data.get('uid')
+        email = request.data.get('email')
+        if not uid and not email:
+            return Response({'detail': 'uid or email is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # If email provided, try to look up the Firebase uid via Django user lookup
+        if not uid and email:
+            try:
+                user = User.objects.get(email=email)
+                uid = user.username  # our FirebaseBackend stores uid in username
+            except User.DoesNotExist:
+                return Response({'detail': 'No local user with that email'}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            # This will raise if firebase not initialized or uid invalid
+            auth.revoke_refresh_tokens(uid)
+        except Exception as e:
+            return Response({'detail': f'Failed to revoke tokens: {e}'}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'detail': 'Tokens revoked'}, status=status.HTTP_200_OK)

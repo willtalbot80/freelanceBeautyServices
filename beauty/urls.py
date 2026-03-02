@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
 from users.views import UserViewSet, RegisterAPIView
-from users.views import ExchangeFirebaseTokenAPIView
+from users.views import ExchangeFirebaseTokenAPIView, RevokeFirebaseTokensAPIView
 from experts.views import ExpertProfileViewSet, PortfolioImageViewSet, expert_list, expert_detail
 from appointments.views import AppointmentViewSet
 from reviews.views import ReviewViewSet
@@ -21,6 +21,7 @@ urlpatterns = [
     path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
     path('api/register/', RegisterAPIView.as_view(), name='api_register'),
     path('api/exchange-firebase-token/', ExchangeFirebaseTokenAPIView.as_view(), name='api_exchange_firebase_token'),
+    path('api/revoke-firebase-tokens/', RevokeFirebaseTokensAPIView.as_view(), name='api_revoke_firebase_tokens'),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
     # simple pages
