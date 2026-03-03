@@ -9,7 +9,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'replace-me-with-secure-key'
 DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '').split(',') if os.getenv('DJANGO_ALLOWED_HOSTS') else []
+# Django will reject requests when DEBUG=False unless the host is allowed
+# (commonly `testserver` during `manage.py test`). Environment variable provides
+# production hosts; if it's empty we still need to permit the test server and
+# localhost so the built‑in test client works.
+allowed = os.getenv('DJANGO_ALLOWED_HOSTS', '')
+ALLOWED_HOSTS = allowed.split(',') if allowed else []
+if not ALLOWED_HOSTS:
+    # minimal defaults for development/testing; production deployments should set
+    # DJANGO_ALLOWED_HOSTS explicitly via env var.
+    ALLOWED_HOSTS = ['testserver', 'localhost', '127.0.0.1']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -78,6 +87,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+# Directory where `collectstatic` will copy files for production
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -111,8 +122,11 @@ CHANNEL_LAYERS = {
     },
 }
 
-# Production security settings (enabled when DEBUG=False)
-if not DEBUG and os.getenv('PYTEST_CURRENT_TEST') is None:
+# Production-level security settings (enabled when DEBUG=False).
+# These are turned off during testing (both with manage.py test and pytest)
+# so that the test client doesn't get redirected to https and ALLOWED_HOSTS
+# doesn't block the requests.
+if not DEBUG and os.getenv('PYTEST_CURRENT_TEST') is None and 'test' not in __import__('sys').argv:
     SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', SECRET_KEY)
     if SECRET_KEY == 'replace-me-with-secure-key':
         raise ValueError('DJANGO_SECRET_KEY must be set in production')
